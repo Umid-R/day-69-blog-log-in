@@ -14,12 +14,17 @@ from forms import CreatePostForm
 from forms import RegisterForm
 from forms import LoginForm
 from forms import CommentForm
+import os
+from dotenv import load_dotenv
+from flask import request
+import smtplib
 
+load_dotenv()
 
 date=date.today().year
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] =os.getenv('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -46,7 +51,7 @@ def load_user(user_id):
 # CREATE DATABASE
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI','sqlite:///posts.db')
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -75,7 +80,7 @@ class User(db.Model,UserMixin):
     posts=relationship('BlogPost',back_populates="author")
     comments=relationship('Comment',back_populates='author')
 
-#Comments table
+#Comments table  
 class Comment(db.Model):
     __tablename__='comments'
     id:Mapped[int]=mapped_column(Integer,primary_key=True)
@@ -240,10 +245,23 @@ def about():
     return render_template("about.html",date=date)
 
 
-@app.route("/contact")
+@app.route("/contact",methods=['GET','POST'])
 def contact():
+    if request.method=='POST':
+        name=request.form.get('name')
+        email=request.form.get('email')
+        phone=request.form.get('phone')
+        message=request.form.get('message')
+        EMAIL=os.getenv('EMAIL')
+        EMAIL_PASSWORD=os.getenv('EMAIL_PASSWORD')
+        with smtplib.SMTP('smtp.gmail.com') as connection:
+            connection.starttls()
+            connection.login(user=EMAIL,password=EMAIL_PASSWORD)
+            connection.sendmail(from_addr=EMAIL,to_addrs='umidraxmatullayev96@gmail.com',msg=f'Subject:New Message From A User\n\n{name}\n{email}\n{phone}\n{message}')
+        return redirect(url_for('contact',date=date))       
+
     return render_template("contact.html",date=date)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=False, port=5002)
