@@ -23,7 +23,7 @@ import csv
 
 load_dotenv()
 
-date=date.today().year
+Year=date.today().year
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] =os.getenv('FLASK_KEY')
@@ -108,11 +108,11 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
-            return redirect(url_for('get_all_posts',date=date))
+            return redirect(url_for('get_all_posts',date=Year))
         else:
             flash('You have already signed up with that email, log in instead!')
-            return redirect(url_for('login',date=date))
-    return render_template("register.html",form=form,date=date)
+            return redirect(url_for('login',date=Year))
+    return render_template("register.html",form=form,date=Year)
 
 
 # TODO: Retrieve a user from the database based on their email. 
@@ -127,18 +127,18 @@ def login():
             if check_password_hash(user.password,password):
                 login_user(user)
                 print('logged in')
-                return redirect(url_for('get_all_posts',date=date))
+                return redirect(url_for('get_all_posts',date=Year))
             else:
                 flash('Wrong password')
-                return redirect(url_for('login',date=date))
+                return redirect(url_for('login',date=Year))
             
         else:
             flash('Not user found with that email')
-            return redirect(url_for('login',date=date))
+            return redirect(url_for('login',date=Year))
             
         
 
-    return render_template("login.html",form=form,date=date)
+    return render_template("login.html",form=form,date=Year)
 
 
 @app.route('/logout')
@@ -151,7 +151,7 @@ def logout():
 def get_all_posts():
     result = db.session.execute(db.select(BlogPost))
     posts = result.scalars().all()
-    return render_template("index.html", all_posts=posts,date=date)
+    return render_template("index.html", all_posts=posts,date=Year)
 
 
 
@@ -166,16 +166,16 @@ def show_post(post_id):
                 db.session.add(new_comment)
                 
                 db.session.commit()
-                return redirect(url_for('show_post',post_id=post_id,date=date))
+                return redirect(url_for('show_post',post_id=post_id,date=Year))
                 
             else:
                 flash("PLease log in or register to comment!")
 
-                return redirect(url_for('login',date=date))
+                return redirect(url_for('login',date=Year))
     
     comments=current_post.all_comments
     requested_post = db.get_or_404(BlogPost, post_id)
-    return render_template("post.html", post=requested_post,form=form,comments=comments,date=date)
+    return render_template("post.html", post=requested_post,form=form,comments=comments,date=Year)
 
 
 # TODO: Use a decorator so only an admin user can create a new post
@@ -203,8 +203,8 @@ def add_new_post():
         )
         db.session.add(new_post)
         db.session.commit()
-        return redirect(url_for("get_all_posts",date=date))
-    return render_template("make-post.html", form=form,date=date)
+        return redirect(url_for("get_all_posts",date=Year))
+    return render_template("make-post.html", form=form,date=Year)
 
 
 # TODO: Use a decorator so only an admin user can edit a post
@@ -227,8 +227,8 @@ def edit_post(post_id):
         post.author = current_user
         post.body = edit_form.body.data
         db.session.commit()
-        return redirect(url_for("show_post", post_id=post.id,date=date))
-    return render_template("make-post.html", form=edit_form, is_edit=True,date=date)
+        return redirect(url_for("show_post", post_id=post.id,date=Year))
+    return render_template("make-post.html", form=edit_form, is_edit=True,date=Year)
 
 
 # TODO: Use a decorator so only an admin user can delete a post
@@ -239,12 +239,12 @@ def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
     db.session.delete(post_to_delete)
     db.session.commit()
-    return redirect(url_for('get_all_posts',date=date))
+    return redirect(url_for('get_all_posts',date=Year))
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html",date=date)
+    return render_template("about.html",date=Year)
 
 
 @app.route("/contact",methods=['GET','POST'])
@@ -260,9 +260,9 @@ def contact():
             connection.starttls()
             connection.login(user=EMAIL,password=EMAIL_PASSWORD)
             connection.sendmail(from_addr=EMAIL,to_addrs='umidraxmatullayev96@gmail.com',msg=f'Subject:New Message From A User\n\n{name}\n{email}\n{phone}\n{message}')
-        return redirect(url_for('contact',date=date))       
+        return redirect(url_for('contact',date=Year))       
 
-    return render_template("contact.html",date=date)
+    return render_template("contact.html",date=Year)
 
 
 if __name__ == "__main__":
