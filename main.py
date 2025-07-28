@@ -18,6 +18,7 @@ import os
 from dotenv import load_dotenv
 from flask import request
 import smtplib
+import random
 
 load_dotenv()
 
@@ -94,7 +95,7 @@ with app.app_context():
     db.create_all()
 
 
-# TODO: Use Werkzeug to hash the user's password when creating a new user.
+
 @app.route('/register',methods=['GET','POST'])
 def register():
     form=RegisterForm()
@@ -152,7 +153,7 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts,date=date)
 
 
-# TODO: Allow logged-in users to comment on posts
+
 @app.route("/post/<int:post_id>",methods=['GET','POST'])
 def show_post(post_id):
     form=CommentForm()
