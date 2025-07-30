@@ -256,7 +256,8 @@ def contact():
         message=request.form.get('message')
         EMAIL=os.getenv('EMAIL')
         EMAIL_PASSWORD=os.getenv('EMAIL_PASSWORD')
-        with smtplib.SMTP('smtp.gmail.com') as connection:
+        print('working')
+        with smtplib.SMTP('smtp.gmail.com',587, timeout=10) as connection:
             connection.starttls()
             connection.login(user=EMAIL,password=EMAIL_PASSWORD)
             connection.sendmail(from_addr=EMAIL,to_addrs='umidraxmatullayev96@gmail.com',msg=f'Subject:New Message From A User\n\n{name}\n{email}\n{phone}\n{message}')
